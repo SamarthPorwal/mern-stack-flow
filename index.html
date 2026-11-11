@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MERN Stack Journey</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout concept: the page is a stack. Browser on top, server in the middle, database at the bottom; one request travels down and back up, and the course builds that stack brick by brick. */
+:root{
+  --paper:#F3F5FA; --panel:#FFFFFF; --ink:#111827; --muted:#566074; --rule:#D6DBE6; --soft:#E8ECF4;
+  --req:#E4572E; --res:#0891B2;
+  --lm:#1E8E57; --le:#5A6072; --lr:#0891B2; --ln:#6A9A1F;
+  --c1:#E4572E; --c2:#C99700; --c3:#0891B2; --c4:#5A6072; --c5:#1E8E57; --c6:#7A4FD0; --c7:#111827;
+  --display:"Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0C1017; --panel:#141A24; --ink:#E7ECF5; --muted:#98A3B8; --rule:#273042; --soft:#1B2230;
+  --req:#FF7A50; --res:#38C7E6;
+  --lm:#43C27F; --le:#A5ADC2; --lr:#38C7E6; --ln:#9CCB45;
+  --c1:#FF7A50; --c2:#F2C230; --c3:#38C7E6; --c4:#A5ADC2; --c5:#43C27F; --c6:#A98AF5; --c7:#E7ECF5;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0C1017; --panel:#141A24; --ink:#E7ECF5; --muted:#98A3B8; --rule:#273042; --soft:#1B2230;
+  --req:#FF7A50; --res:#38C7E6;
+  --lm:#43C27F; --le:#A5ADC2; --lr:#38C7E6; --ln:#9CCB45;
+  --c1:#FF7A50; --c2:#F2C230; --c3:#38C7E6; --c4:#A5ADC2; --c5:#43C27F; --c6:#A98AF5; --c7:#E7ECF5;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.02}
+h1{font-stretch:125%;font-weight:900;letter-spacing:-.02em;font-size:clamp(40px,6.6vw,80px)}
+h2{font-stretch:118%;font-weight:850;letter-spacing:-.015em;font-size:clamp(30px,4.4vw,50px)}
+h3{font-stretch:108%;font-weight:750;font-size:21px;line-height:1.15}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:18px}
+section{padding-block:76px;border-top:1px solid var(--rule)}
+.sec-head{display:grid;gap:12px;margin-bottom:36px}
+:focus-visible{outline:3px solid var(--req);outline-offset:2px;border-radius:6px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+nav.top .wrap{display:flex;align-items:center;gap:18px;height:56px;overflow-x:auto;scrollbar-width:none}
+.brand{font-family:var(--display);font-stretch:125%;font-weight:900;font-size:17px;white-space:nowrap;display:flex;gap:3px;align-items:center}
+.brand i{display:inline-block;width:8px;height:18px;border-radius:2px}
+.brand span{margin-left:8px}
+nav.top .links{display:flex;gap:4px;margin-left:auto}
+nav.top .links a{color:var(--muted);text-decoration:none;font-size:14px;padding:6px 10px;border-radius:99px;white-space:nowrap}
+nav.top .links a:hover{background:var(--soft);color:var(--ink)}
+
+/* hero */
+.hero{border-top:none;padding-block:56px 70px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero-grid > *{min-width:0}
+.hero h1 .w{display:inline-block;animation:drop .7s cubic-bezier(.2,.8,.2,1) both}
+.hero h1 .w:nth-child(2){animation-delay:.08s}.hero h1 .w:nth-child(3){animation-delay:.16s}.hero h1 .w:nth-child(4){animation-delay:.24s}
+@keyframes drop{from{transform:translateY(-18px)}to{transform:none}}
+.hero h1 em{font-style:normal;color:var(--req)}
+.hero .lede{margin-top:20px}
+.stats{display:flex;flex-wrap:wrap;gap:10px 30px;margin-top:30px}
+.stat b{display:block;font-family:var(--display);font-stretch:125%;font-size:36px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+
+.stackviz{background:var(--panel);border:1px solid var(--rule);border-radius:20px;padding:18px;display:grid;gap:12px}
+.stackviz svg{display:block;width:100%;height:auto}
+.stackviz text{font-family:var(--body);fill:var(--ink)}
+.sv-box{fill:var(--paper);stroke:var(--rule);stroke-width:1.5;transition:stroke .3s}
+.sv-box.on{stroke:var(--req);stroke-width:2.5}
+.sv-lbl{font-family:var(--display)!important;font-stretch:115%;font-weight:800;font-size:17px}
+.sv-sub{font-family:var(--mono)!important;font-size:11px;fill:var(--muted)!important}
+.sv-wire{stroke:var(--rule);stroke-width:2;stroke-dasharray:3 5}
+.caption{display:flex;gap:12px;align-items:center;min-height:52px;background:var(--soft);border-radius:10px;padding:10px 14px;font-size:15px}
+.caption b.n{font-family:var(--mono);font-size:12px;color:var(--panel);background:var(--req);border-radius:6px;padding:2px 7px;flex:none}
+.caption.up b.n{background:var(--res)}
+
+/* MERN letters */
+.letters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.letter{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:22px;display:grid;gap:10px;align-content:start;position:relative;overflow:hidden;transition:transform .25s,border-color .25s}
+.letter:hover{transform:translateY(-4px);border-color:var(--c)}
+.letter .L{font-family:var(--display);font-stretch:125%;font-weight:900;font-size:76px;line-height:.8;color:var(--c)}
+.letter .name{font-family:var(--display);font-stretch:110%;font-weight:800;font-size:20px}
+.letter .role{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.letter p{color:var(--muted);font-size:15.5px}
+.letter .like{font-size:14.5px;border-top:1px dashed var(--rule);padding-top:10px}
+.letter .like b{color:var(--ink)}
+.letter .where{position:absolute;top:18px;right:18px;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--rule);color:var(--muted)}
+.why-js{margin-top:20px;display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);padding:16px 18px;font-size:15.5px}
+.why-js .js{flex:none;font-family:var(--mono);font-weight:600;font-size:15px;width:44px;height:44px;border-radius:8px;display:grid;place-items:center;background:var(--c2);color:#111827}
+
+/* request journey */
+.journey{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:28px;align-items:start}
+.jsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.jsteps button{width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;cursor:pointer;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;transition:border-color .2s,background .2s}
+.jsteps button .k{font-family:var(--mono);font-size:12px;font-weight:600;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--rule)}
+.jsteps button .tt{font-weight:700}
+.jsteps button .tsub{display:block;font-size:13px;color:var(--muted);font-family:var(--mono)}
+.jsteps button[aria-current="step"]{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 8%,var(--panel))}
+.jsteps button[aria-current="step"] .k{background:var(--sc);border-color:var(--sc);color:var(--panel)}
+.jpanel{position:sticky;top:76px;background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:16px}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lane{border:1.5px solid var(--rule);border-radius:10px;padding:10px;text-align:center;transition:all .3s;background:var(--paper)}
+.lane b{display:block;font-family:var(--display);font-stretch:110%;font-weight:800;font-size:15px}
+.lane span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lane.on{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 12%,var(--panel));transform:translateY(-3px)}
+.jtrack{position:relative;height:10px;background:var(--soft);border-radius:99px}
+.jtrack i{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--sc);transform:translate(-50%,-50%);transition:left .6s cubic-bezier(.4,.1,.2,1),background .3s;box-shadow:0 0 0 5px color-mix(in srgb,var(--sc) 25%,transparent)}
+.jtext{display:grid;gap:8px}
+.jtext h3{font-size:24px}
+.jtext p{color:var(--muted)}
+.snippet{font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.55}
+.jtools{display:flex;flex-wrap:wrap;gap:6px}
+.jfoot{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.btn{font:inherit;font-size:14px;font-weight:700;padding:8px 14px;border-radius:99px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.chip{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--rule);background:var(--paper);white-space:nowrap}
+.mchip{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;color:var(--panel);background:var(--c);white-space:nowrap}
+
+/* course tower */
+.course{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:28px;align-items:start}
+.tower{display:flex;flex-direction:column-reverse;gap:6px}
+.brick{--h:calc(var(--hrs) * 9px + 26px);min-height:var(--h);font:inherit;color:var(--ink);text-align:left;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:color-mix(in srgb,var(--c) 14%,var(--panel));border-left:8px solid var(--c);display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;transition:transform .25s,background .25s;animation:stack .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * .08s)}
+@keyframes stack{from{transform:translateY(-22px)}to{transform:none}}
+.brick:hover{transform:translateX(6px)}
+.brick[aria-selected="true"]{background:var(--c);color:var(--panel);transform:translateX(10px)}
+.brick .bt{font-family:var(--display);font-stretch:110%;font-weight:800;font-size:16px;line-height:1.15}
+.brick .bm{display:block;font-family:var(--mono);font-size:11px;opacity:.8;font-weight:400}
+.brick .bh{font-family:var(--mono);font-size:12px;font-weight:600}
+.tower-cap{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;margin-top:8px}
+.mdetail{background:var(--panel);border:1px solid var(--rule);border-top:6px solid var(--c);border-radius:16px;padding:26px;display:grid;gap:18px;animation:pop .35s ease}
+@keyframes pop{from{transform:translateY(8px)}to{transform:none}}
+.mdetail .simple{font-size:19px;line-height:1.5}
+.mdetail h4{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.topics{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.topics li{background:var(--paper);border-radius:8px;padding:10px 12px;display:grid}
+.topics b{font-size:15px}
+.topics span{color:var(--muted);font-size:14px;line-height:1.45}
+.labs{display:flex;flex-wrap:wrap;gap:6px}
+.labs span{font-size:14px;padding:5px 10px;border-radius:8px;border:1px solid var(--rule)}
+.mini{background:color-mix(in srgb,var(--c) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 35%,var(--rule));border-radius:12px;padding:16px}
+.mini .tag{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--c);letter-spacing:.06em;text-transform:uppercase}
+.mini p{margin-top:6px;font-size:15.5px}
+.helps{font-size:15px;color:var(--muted);border-left:3px solid var(--c);padding-left:12px}
+.helps b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+/* capstone */
+.cap-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;margin-bottom:34px}
+.badge{font-family:var(--mono);font-size:13px;border:1.5px solid var(--ink);border-radius:99px;padding:6px 14px;white-space:nowrap}
+.roles{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:24px;align-items:start}
+.rtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.rtabs button{font:inherit;font-weight:700;font-size:15px;padding:9px 16px;border-radius:99px;border:1.5px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer}
+.rtabs button[aria-selected="true"]{background:var(--rc);border-color:var(--rc);color:var(--panel)}
+.rcard{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:12px;animation:pop .35s ease}
+.rcard ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rcard li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--paper);font-size:15.5px}
+.screen{background:var(--panel);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+.screen .bar{display:flex;gap:6px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--rule);background:var(--soft)}
+.screen .bar i{width:10px;height:10px;border-radius:50%;background:var(--rule)}
+.screen .bar span{margin-left:10px;font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--panel);border-radius:6px;padding:2px 10px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.screen .body{padding:18px;display:grid;gap:10px;min-height:250px}
+.sk{height:12px;border-radius:6px;background:var(--soft)}
+.sk.w60{width:60%}.sk.w40{width:40%}.sk.w80{width:80%}
+.srow{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--rule);border-radius:10px;animation:slidein .5s both;animation-delay:calc(var(--i)*.1s)}
+@keyframes slidein{from{transform:translateX(16px)}to{transform:none}}
+.srow .av{width:30px;height:30px;border-radius:8px;background:color-mix(in srgb,var(--rc) 30%,var(--soft));flex:none}
+.srow .tx{flex:1;display:grid;gap:6px;min-width:0}
+.srow .pill{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:99px;background:var(--rc);color:var(--panel);white-space:nowrap}
+.bars{display:flex;align-items:flex-end;gap:8px;height:110px;padding-top:8px}
+.bars i{flex:1;background:var(--rc);border-radius:6px 6px 0 0;animation:growy .8s both;transform-origin:bottom;animation-delay:calc(var(--i)*.08s)}
+@keyframes growy{from{transform:scaleY(.1)}to{transform:none}}
+.toast{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--res) 14%,var(--panel));border:1px solid color-mix(in srgb,var(--res) 40%,var(--rule));font-size:14px;animation:toast 4s infinite}
+@keyframes toast{0%,8%{transform:translateY(-6px)}14%,100%{transform:none}}
+.bell{width:20px;height:20px;flex:none;color:var(--res);animation:ring 4s infinite;transform-origin:50% 10%}
+@keyframes ring{0%,2%{transform:rotate(0)}4%{transform:rotate(18deg)}6%{transform:rotate(-14deg)}8%{transform:rotate(8deg)}10%,100%{transform:rotate(0)}}
+
+.arch{margin-top:44px;background:var(--panel);border:1px solid var(--rule);border-radius:20px;padding:18px}
+.arch-scroll{overflow-x:auto}
+.arch svg{display:block;min-width:760px;width:100%;height:auto}
+.arch text{font-family:var(--body);fill:var(--ink)}
+.a-box{fill:var(--paper);stroke:var(--rule);stroke-width:1.5}
+.a-lbl{font-family:var(--display)!important;font-stretch:112%;font-weight:800;font-size:16px}
+.a-sub{font-family:var(--mono)!important;font-size:11px;fill:var(--muted)!important}
+.a-host{font-family:var(--mono)!important;font-size:11px;font-weight:600}
+.flow{fill:none;stroke-width:2.2;stroke-dasharray:7 7;animation:dash 1s linear infinite}
+.flow.rev{animation-direction:reverse}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.key{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px;font-size:14px;color:var(--muted)}
+.key span{display:inline-flex;align-items:center;gap:8px}
+.key i{width:18px;height:3px;border-radius:2px;display:inline-block}
+
+.tracks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:44px}
+.track{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:12px;align-content:start}
+.track .th{display:flex;gap:12px;align-items:center}
+.track .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 16%,var(--panel));color:var(--c);flex:none}
+.track ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.track li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:15.5px;padding-bottom:6px;border-bottom:1px dashed var(--rule)}
+.track li:last-child{border-bottom:0}
+
+.timeline{margin-top:56px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;position:relative}
+.timeline::before{content:"";position:absolute;left:8%;right:8%;top:23px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--c1),var(--c3),var(--c5),var(--c6))}
+.timeline::after{content:"";position:absolute;top:19px;left:8%;width:12px;height:12px;border-radius:50%;background:var(--req);box-shadow:0 0 0 5px color-mix(in srgb,var(--req) 25%,transparent);animation:travel 7s ease-in-out infinite}
+@keyframes travel{0%{left:8%}90%,100%{left:calc(92% - 12px)}}
+.tl{display:grid;justify-items:center;text-align:center;gap:8px;padding:0 6px;position:relative}
+.tl .dot{width:50px;height:50px;border-radius:50%;background:var(--panel);border:3px solid var(--ink);display:grid;place-items:center;font-family:var(--display);font-stretch:125%;font-weight:900;font-size:18px;position:relative;z-index:1}
+.tl b{font-family:var(--display);font-stretch:108%;font-size:15.5px;line-height:1.2}
+.tl span{font-size:13.5px;color:var(--muted);line-height:1.4}
+
+.cicd{margin-top:44px;background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:20px;display:grid;gap:14px}
+.pipe{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;position:relative}
+.pipe div{border:1.5px solid var(--rule);border-radius:10px;padding:12px;text-align:center;background:var(--paper);position:relative;z-index:1;animation:lit 6s infinite;animation-delay:calc(var(--i)*1.1s)}
+@keyframes lit{0%,16%{border-color:var(--c6);box-shadow:0 0 0 3px color-mix(in srgb,var(--c6) 22%,transparent)}22%,100%{border-color:var(--rule);box-shadow:none}}
+.pipe b{display:block;font-size:14.5px}
+.pipe span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+/* outcome */
+.outcome{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.oc{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:8px;align-content:start}
+.oc .big{font-family:var(--display);font-stretch:125%;font-weight:900;font-size:40px;line-height:1;color:var(--c)}
+.oc p{color:var(--muted);font-size:15.5px}
+.submit{margin-top:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.submit label{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;cursor:pointer}
+.submit input{width:20px;height:20px;accent-color:var(--lm);flex:none;margin-top:2px}
+.submit label:has(input:checked){border-color:var(--lm);background:color-mix(in srgb,var(--lm) 8%,var(--panel))}
+.submit .dt{font-weight:700}
+.submit .dd{display:block;font-size:14px;color:var(--muted)}
+.progress{display:flex;align-items:center;gap:14px;margin-top:20px}
+.progress .bar{flex:1;height:10px;border-radius:99px;background:var(--soft);overflow:hidden}
+.progress .bar i{display:block;height:100%;background:var(--lm);transition:width .4s}
+.progress span{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+footer{border-top:1px solid var(--rule);padding-block:36px 48px;color:var(--muted);font-size:14px}
+
+@supports (animation-timeline: view()){
+  .reveal{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 60%}
+  @keyframes rise{from{transform:translateY(18px)}to{transform:none}}
+}
+
+@media (max-width:920px){
+  .hero-grid,.journey,.course,.roles{grid-template-columns:minmax(0,1fr)}
+  .letters,.outcome{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jpanel{position:static}
+  .timeline{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px}
+  .timeline::before,.timeline::after{display:none}
+  .pipe{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cap-top{grid-template-columns:minmax(0,1fr)}
+  .badge{justify-self:start}
+}
+@media (max-width:600px){
+  body{font-size:16px}
+  section{padding-block:54px}
+  .letters,.outcome,.tracks,.submit,.topics{grid-template-columns:minmax(0,1fr)}
+  .timeline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pipe{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lanes{grid-template-columns:minmax(0,1fr)}
+  .mdetail{padding:20px}
+  nav.top .links a.opt{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Sections">
+  <div class="wrap">
+    <div class="brand" aria-label="MERN Stack Journey"><i style="background:var(--lm)"></i><i style="background:var(--le)"></i><i style="background:var(--lr)"></i><i style="background:var(--ln)"></i><span>MERN Stack Journey</span></div>
+    <div class="links">
+      <a href="#stack">The stack</a>
+      <a href="#request" class="opt">One request</a>
+      <a href="#course">Modules</a>
+      <a href="#capstone">Capstone</a>
+      <a href="#outcome" class="opt">Outcome</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">NMIET · MERN Full Stack Web Development</div>
+      <h1 style="margin-top:14px"><span class="w">One</span> <span class="w">click.</span> <span class="w">Four</span> <span class="w"><em>layers.</em></span></h1>
+      <p class="lede">When someone clicks a button on a website, the request travels from the screen to a server, then to a database, and back again. This course teaches you to build every one of those layers yourself, all in JavaScript.</p>
+      <div class="stats">
+        <div class="stat"><b>60</b><span>hours</span></div>
+        <div class="stat"><b>7</b><span>modules</span></div>
+        <div class="stat"><b>6</b><span>mini projects</span></div>
+        <div class="stat"><b>1</b><span>capstone job portal</span></div>
+      </div>
+    </div>
+    <figure class="stackviz" style="margin:0" aria-label="Animation: a request moves from the React browser layer, through the Express and Node.js server, to MongoDB, and the answer comes back up.">
+      <svg viewBox="0 0 460 330" id="sv">
+        <line class="sv-wire" x1="300" y1="96" x2="300" y2="122"/>
+        <line class="sv-wire" x1="300" y1="216" x2="300" y2="242"/>
+        <g id="sv-r"><rect class="sv-box" x="20" y="12" width="420" height="84" rx="14"/>
+          <rect x="34" y="26" width="8" height="56" rx="3" fill="var(--lr)"/>
+          <text class="sv-lbl" x="56" y="48">React</text><text class="sv-sub" x="56" y="68">IN THE BROWSER · what users see</text>
+          <rect x="330" y="36" width="92" height="34" rx="8" fill="var(--req)"/><text x="376" y="58" text-anchor="middle" font-size="13" font-weight="700" style="fill:#fff">Apply</text></g>
+        <g id="sv-e"><rect class="sv-box" x="20" y="122" width="420" height="94" rx="14"/>
+          <rect x="34" y="136" width="8" height="30" rx="3" fill="var(--le)"/>
+          <rect x="34" y="172" width="8" height="30" rx="3" fill="var(--ln)"/>
+          <text class="sv-lbl" x="56" y="156">Express</text><text class="sv-sub" x="146" y="156">routes · checks · rules</text>
+          <text class="sv-lbl" x="56" y="194">Node.js</text><text class="sv-sub" x="146" y="194">runs JavaScript on the server</text></g>
+        <g id="sv-m"><rect class="sv-box" x="20" y="242" width="420" height="76" rx="14"/>
+          <rect x="34" y="256" width="8" height="48" rx="3" fill="var(--lm)"/>
+          <text class="sv-lbl" x="56" y="278">MongoDB</text><text class="sv-sub" x="56" y="298">IN THE CLOUD · where data is saved</text>
+          <g fill="var(--soft)" stroke="var(--rule)"><rect x="330" y="258" width="26" height="44" rx="4"/><rect x="362" y="258" width="26" height="44" rx="4"/><rect x="394" y="258" width="26" height="44" rx="4"/></g></g>
+        <circle id="pkt" cx="300" cy="54" r="9" fill="var(--req)"/>
+      </svg>
+      <div class="caption" id="cap"><b class="n">1</b><span>A job seeker clicks <b>Apply</b> in the React app.</span></div>
+    </figure>
+  </div>
+</header>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Part 1 · What MERN means</div>
+      <h2>Four tools, one language</h2>
+      <p class="lede">MERN is short for the four tools that make a full web app. Think of a restaurant: there is the dining room, the waiter, the kitchen and the store room. Each tool plays one of those parts.</p>
+    </div>
+    <div class="letters">
+      <div class="letter reveal" style="--c:var(--lm)"><span class="where">database</span><span class="L">M</span><span class="name">MongoDB</span><span class="role">Stores the data</span><p>Saves users, jobs and applications as documents that look like JSON. Learned in Module 5.</p><p class="like"><b>Like the store room:</b> everything is kept here, neatly on shelves.</p></div>
+      <div class="letter reveal" style="--c:var(--le)"><span class="where">server</span><span class="L">E</span><span class="name">Express</span><span class="role">Handles requests</span><p>Decides what to do with each request: which route, who is allowed, what to send back. Module 4.</p><p class="like"><b>Like the waiter:</b> takes the order, checks it, brings back the dish.</p></div>
+      <div class="letter reveal" style="--c:var(--lr)"><span class="where">browser</span><span class="L">R</span><span class="name">React</span><span class="role">Shows the screens</span><p>Builds the pages people click on: forms, lists, dashboards. Updates the screen without reloading. Module 3.</p><p class="like"><b>Like the dining room:</b> the part guests see and use.</p></div>
+      <div class="letter reveal" style="--c:var(--ln)"><span class="where">server</span><span class="L">N</span><span class="name">Node.js</span><span class="role">Runs the server</span><p>Lets JavaScript run outside the browser, on a server. Express is built on top of it. Module 4.</p><p class="like"><b>Like the kitchen:</b> the place where the real work happens.</p></div>
+    </div>
+    <div class="why-js reveal"><span class="js">JS</span><p><b>Why students like MERN:</b> you write JavaScript everywhere, in the browser, on the server, and even the data looks like JavaScript objects. One language takes you across the full stack. That is why Modules 1 and 2 (HTML, CSS and JavaScript) come first.</p></div>
+  </div>
+</section>
+
+<section id="request">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Part 2 · How it works</div>
+      <h2>Follow one request through the stack</h2>
+      <p class="lede">Here is what happens in the capstone when a job seeker applies for a job. Press play, or click any step. Every full stack app works this same way.</p>
+    </div>
+    <div class="journey">
+      <ol class="jsteps" id="jsteps"></ol>
+      <div class="jpanel" id="jpanel" aria-live="polite">
+        <div class="lanes">
+          <div class="lane" data-l="0"><b>Browser</b><span>React</span></div>
+          <div class="lane" data-l="1"><b>Server</b><span>Express + Node</span></div>
+          <div class="lane" data-l="2"><b>Database</b><span>MongoDB</span></div>
+        </div>
+        <div class="jtrack"><i id="jdot" style="left:16%"></i></div>
+        <div class="jtext"><span class="eyebrow" id="jmod"></span><h3 id="jtitle"></h3><p id="jbody"></p></div>
+        <div class="snippet" id="jcode"></div>
+        <div class="jfoot"><div class="jtools" id="jtools"></div>
+          <div style="display:flex;gap:6px"><button class="btn ghost" type="button" id="jprev" aria-label="Previous step">←</button><button class="btn" type="button" id="jplay">Play</button><button class="btn ghost" type="button" id="jnext" aria-label="Next step">→</button></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="course">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Part 3 · The course</div>
+      <h2>Build the stack, brick by brick</h2>
+      <p class="lede">Each module adds one layer, from the screen at the bottom up to a live app in the cloud. Taller bricks take more hours. Click a brick to see what is inside.</p>
+    </div>
+    <div class="course">
+      <div>
+        <div class="tower" id="tower" role="tablist" aria-label="Course modules"></div>
+        <div class="tower-cap"><span>↑ start here: Module 1</span><span>60 hrs total</span></div>
+      </div>
+      <div id="mdetail" role="tabpanel"></div>
+    </div>
+  </div>
+</section>
+
+<section id="capstone">
+  <div class="wrap">
+    <div class="cap-top reveal">
+      <div class="sec-head" style="margin:0">
+        <div class="eyebrow">Part 4 · The capstone</div>
+        <h2>Job Portal Web App</h2>
+        <p class="lede">You build a real job portal, like a small Naukri or LinkedIn Jobs. Three kinds of people use it, and each one sees a different app. It brings together every module of the course.</p>
+      </div>
+      <span class="badge">MERN · live on Vercel + Render + Atlas</span>
+    </div>
+
+    <div class="roles">
+      <div>
+        <div class="rtabs" role="tablist" aria-label="User roles" id="rtabs"></div>
+        <div id="rcard"></div>
+      </div>
+      <div class="screen" aria-hidden="true">
+        <div class="bar"><i></i><i></i><i></i><span id="surl">jobportal.vercel.app/jobs</span></div>
+        <div class="body" id="sbody"></div>
+      </div>
+    </div>
+
+    <div class="arch reveal">
+      <div class="eyebrow" style="margin:4px 4px 10px">Where each part lives once it is deployed</div>
+      <div class="arch-scroll">
+        <svg viewBox="0 0 960 330" role="img" aria-label="Deployment map: users open the React app on Vercel. It talks to the Express API and Socket.io on Render over REST and WebSocket. The API stores data in MongoDB Atlas, saves resumes to cloud storage, and uses Google for login.">
+          <path class="flow" stroke="var(--req)" d="M150 150 H262"/>
+          <path class="flow" stroke="var(--req)" d="M462 150 H572"/>
+          <path class="flow rev" stroke="var(--res)" d="M150 182 H262"/>
+          <path class="flow rev" stroke="var(--res)" d="M462 182 H572"/>
+          <path class="flow" stroke="var(--c6)" d="M362 210 V262 H572"/>
+          <path class="flow" stroke="var(--c2)" d="M362 112 V60 H572"/>
+          <path class="flow rev" stroke="var(--res)" d="M772 166 H808" style="opacity:.0"/>
+          <g><rect class="a-box" x="20" y="110" width="130" height="110" rx="14"/>
+            <text class="a-lbl" x="85" y="156" text-anchor="middle">Users</text>
+            <text class="a-sub" x="85" y="176" text-anchor="middle">seeker · recruiter</text><text class="a-sub" x="85" y="192" text-anchor="middle">· admin</text></g>
+          <g><rect class="a-box" x="262" y="112" width="200" height="98" rx="14" style="stroke:var(--lr);stroke-width:2"/>
+            <text class="a-host" x="278" y="134" style="fill:var(--lr)">VERCEL</text>
+            <text class="a-lbl" x="278" y="160">React app</text>
+            <text class="a-sub" x="278" y="180">Redux · Tailwind · CDN</text>
+            <text class="a-sub" x="278" y="196">code splitting, caching</text></g>
+          <g><rect class="a-box" x="572" y="112" width="200" height="98" rx="14" style="stroke:var(--le);stroke-width:2"/>
+            <text class="a-host" x="588" y="134" style="fill:var(--le)">RENDER</text>
+            <text class="a-lbl" x="588" y="160">Express API</text>
+            <text class="a-sub" x="588" y="180">JWT · helmet · rate limit</text>
+            <text class="a-sub" x="588" y="196">+ Socket.io server</text></g>
+          <g><rect class="a-box" x="808" y="112" width="132" height="98" rx="14" style="stroke:var(--lm);stroke-width:2"/>
+            <text class="a-host" x="822" y="134" style="fill:var(--lm)">ATLAS</text>
+            <text class="a-lbl" x="822" y="160">MongoDB</text>
+            <text class="a-sub" x="822" y="180">users · jobs</text>
+            <text class="a-sub" x="822" y="196">applications</text></g>
+          <path class="flow" stroke="var(--lm)" d="M772 150 H808"/>
+          <path class="flow rev" stroke="var(--lm)" d="M772 182 H808"/>
+          <g><rect class="a-box" x="572" y="236" width="200" height="56" rx="12"/>
+            <text class="a-lbl" x="588" y="260" style="font-size:14px">Cloud file storage</text>
+            <text class="a-sub" x="588" y="278">resumes uploaded via Multer</text></g>
+          <g><rect class="a-box" x="572" y="22" width="200" height="56" rx="12"/>
+            <text class="a-lbl" x="588" y="46" style="font-size:14px">Google sign-in</text>
+            <text class="a-sub" x="588" y="64">OAuth 2.0 · Passport.js</text></g>
+          <text class="a-sub" x="168" y="140">opens site</text>
+          <text class="a-sub" x="476" y="140">REST / JSON</text>
+          <text class="a-sub" x="476" y="204">live updates</text>
+          <text class="a-sub" x="168" y="204">screen updates</text>
+        </svg>
+      </div>
+      <div class="key"><span><i style="background:var(--req)"></i>requests going in</span><span><i style="background:var(--res)"></i>answers and live notifications coming back</span><span><i style="background:var(--lm)"></i>reading and saving data</span><span><i style="background:var(--c2)"></i>Google login</span><span><i style="background:var(--c6)"></i>resume upload</span></div>
+    </div>
+
+    <div class="sec-head reveal" style="margin:56px 0 0">
+      <h3 style="font-size:28px">The four parts you build</h3>
+      <p class="note" style="color:var(--muted)">Each part uses skills from earlier modules. The coloured tags show where you learned them.</p>
+    </div>
+    <div class="tracks" id="tracks"></div>
+
+    <div class="sec-head reveal" style="margin:64px 0 0">
+      <h3 style="font-size:28px">Start to end: a sensible order to build it</h3>
+      <p class="note" style="color:var(--muted)">One way to plan the work so each step builds on the last.</p>
+    </div>
+    <div class="timeline" id="timeline"></div>
+
+    <div class="cicd reveal">
+      <div class="eyebrow">How your code reaches the live site (CI/CD with GitHub Actions, Module 6)</div>
+      <div class="pipe">
+        <div style="--i:0"><b>git push</b><span>your branch / PR</span></div>
+        <div style="--i:1"><b>GitHub Actions</b><span>runs automatically</span></div>
+        <div style="--i:2"><b>Jest tests</b><span>stop bad code</span></div>
+        <div style="--i:3"><b>Deploy</b><span>Vercel + Render</span></div>
+        <div style="--i:4"><b>Live URL</b><span>updated for everyone</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="outcome">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Part 5 · What you walk away with</div>
+      <h2>A portfolio, not just a certificate</h2>
+      <p class="lede">By the end you will have seven projects on GitHub and one live full stack app you can show in any interview.</p>
+    </div>
+    <div class="outcome">
+      <div class="oc reveal" style="--c:var(--c1)"><span class="big">6</span><h3>Mini projects</h3><p>Portfolio site, GitHub explorer, e-commerce SPA, blog API, result system and a secure login module.</p></div>
+      <div class="oc reveal" style="--c:var(--c3)"><span class="big">1</span><h3>Live job portal</h3><p>Three user roles, Google login, resume upload, real-time alerts and an admin analytics dashboard.</p></div>
+      <div class="oc reveal" style="--c:var(--c5)"><span class="big">≥90</span><h3>Lighthouse target</h3><p>Your capstone is checked for speed and quality with a Lighthouse audit, aiming for a score of 90 or more.</p></div>
+    </div>
+    <h3 style="margin-top:40px;font-size:24px">Before you submit, tick what is ready</h3>
+    <div class="progress"><div class="bar"><i id="pbar" style="width:0%"></i></div><span id="ptext">0 of 5 ready</span></div>
+    <div class="submit" id="submit"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Built from the NMIET MERN Full Stack Master Curriculum: 7 modules, 60 hours, 6 mini projects and the Job Portal capstone.</div>
+</footer>
+
+<script>
+(function(){
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---------- hero stack animation ---------- */
+const caps=[
+ ['1','A job seeker clicks <b>Apply</b> in the React app.',0,54],
+ ['2','React sends the request to the <b>Express</b> server, running on <b>Node.js</b>.',0,170],
+ ['3','Express checks the login token, then asks <b>MongoDB</b> to save the application.',0,280],
+ ['4','MongoDB saves it and replies: <b>done</b>.',1,170],
+ ['5','React shows “Application sent” without reloading the page.',1,54]
+];
+const pkt=$('pkt'),cap=$('cap'),boxes=['sv-r','sv-e','sv-m','sv-e','sv-r'].map(id=>$(id).querySelector('.sv-box'));
+let ci=0,cy=54;
+function showCap(i){const c=caps[i];cap.className='caption'+(c[2]?' up':'');cap.innerHTML=`<b class="n">${c[0]}/5</b><span>${c[1]}</span>`;
+  boxes.forEach(b=>b.classList.remove('on'));boxes[i].classList.add('on');
+  pkt.setAttribute('fill',c[2]?getComputedStyle(document.documentElement).getPropertyValue('--res'):getComputedStyle(document.documentElement).getPropertyValue('--req'));}
+function animTo(y,ms){const y0=cy,t0=performance.now();return new Promise(res=>{function f(t){const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cy=y0+(y-y0)*e;pkt.setAttribute('cy',cy);k<1?requestAnimationFrame(f):res();}requestAnimationFrame(f);});}
+async function heroLoop(){while(true){for(let i=0;i<caps.length;i++){showCap(i);await animTo(caps[i][3],900);await new Promise(r=>setTimeout(r,1500));}}}
+if(reduce){showCap(0);}else heroLoop();
+
+/* ---------- request journey ---------- */
+const J=[
+ {t:'Click “Apply”',l:0,c:'--lr',mod:'React · Module 3',body:'The job seeker presses the Apply button. A React component reacts to the click and gets ready to send the request.',code:'<button onClick={handleApply}>Apply</button>',tools:['React','useState','Redux Toolkit']},
+ {t:'Send the request',l:0.5,c:'--req',mod:'Axios + JWT · Modules 2, 3, 4',body:'React uses Axios to send an HTTP request to the server. It carries the job ID and a JWT token that proves who the user is.',code:'POST /api/applications\nAuthorization: Bearer <JWT token>',tools:['Axios','Fetch / async-await','JWT']},
+ {t:'Check the request',l:1,c:'--le',mod:'Express middleware · Modules 4, 6',body:'Express receives it. Middleware runs first: it checks the token, the user role (only job seekers can apply), the rate limit and security headers.',code:'router.post("/applications",\n  auth, allow("seeker"), applyController)',tools:['Express','JWT','helmet','CORS','rate limit']},
+ {t:'Save to the database',l:2,c:'--lm',mod:'Mongoose + MongoDB · Module 5',body:'The controller uses a Mongoose model to save a new application document in MongoDB Atlas, linked to the user and the job.',code:'Application.create({ job, seeker, resume })',tools:['Mongoose','MongoDB Atlas','schemas']},
+ {t:'Send the answer back',l:1,c:'--res',mod:'REST response · Module 4',body:'MongoDB confirms it is saved. Express sends a short JSON answer back with a status code like 201 Created.',code:'201 Created\n{ "status": "applied" }',tools:['REST','JSON','status codes']},
+ {t:'Update the screen',l:0,c:'--lr',mod:'React state · Module 3',body:'React updates its state, and the button changes to “Applied ✓” right away. No page reload is needed.',code:'dispatch(markApplied(jobId))',tools:['Redux Toolkit','React Hooks']},
+ {t:'Notify the recruiter live',l:1,c:'--c6',mod:'Socket.io · Module 7',body:'The server also pushes a real-time message through Socket.io. The recruiter sees “New application” pop up instantly, without refreshing.',code:'io.to(recruiterId).emit("new-application")',tools:['Socket.io','WebSocket']}
+];
+const js=$('jsteps');let ji=0,playing=false,timer=null;
+js.innerHTML=J.map((s,i)=>`<li><button type="button" data-i="${i}" style="--sc:var(${s.c})"><span class="k">${i+1}</span><span><span class="tt">${esc(s.t)}</span><span class="tsub">${esc(s.mod)}</span></span></button></li>`).join('');
+js.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{stop();jshow(+b.dataset.i);}));
+function jshow(i){ji=i;const s=J[i],p=$('jpanel');p.style.setProperty('--sc','var('+s.c+')');
+  js.querySelectorAll('button').forEach((b,k)=>k===i?b.setAttribute('aria-current','step'):b.removeAttribute('aria-current'));
+  p.querySelectorAll('.lane').forEach(l=>l.classList.toggle('on',+l.dataset.l===Math.round(s.l)&&s.l%1===0||(s.l%1!==0&&(+l.dataset.l===0||+l.dataset.l===1))));
+  $('jdot').style.left=(16.6+s.l*33.3)+'%';
+  $('jmod').textContent='Step '+(i+1)+' of '+J.length+' · '+s.mod;$('jtitle').textContent=s.t;$('jbody').textContent=s.body;$('jcode').textContent=s.code;
+  $('jtools').innerHTML=s.tools.map(t=>`<span class="chip">${esc(t)}</span>`).join('');}
+function stop(){playing=false;clearInterval(timer);$('jplay').textContent='Play';}
+$('jplay').addEventListener('click',()=>{if(playing)return stop();playing=true;$('jplay').textContent='Pause';if(ji===J.length-1)jshow(0);timer=setInterval(()=>{if(ji>=J.length-1)return stop();jshow(ji+1);},2600);});
+$('jnext').addEventListener('click',()=>{stop();jshow((ji+1)%J.length);});
+$('jprev').addEventListener('click',()=>{stop();jshow((ji-1+J.length)%J.length);});
+jshow(0);
+
+/* ---------- modules ---------- */
+const M=[
+ {n:1,h:5,c:'--c1',t:'HTML5, CSS3 & Responsive Design',layer:'Looks',
+  simple:'Learn how web pages are built and styled, and how to make them look good on phones and laptops.',
+  helps:'Every screen of the job portal (job lists, forms, dashboards) is made of HTML and CSS. Tailwind in the capstone builds on this.',
+  topics:[['Semantic HTML5','Forms, tables and media, using the right tag for each job.'],['Flexbox & Grid','The two main ways to lay out a page.'],['Responsive design','Media queries so pages fit any screen size.'],['CSS variables & animations','Reusable colours and smooth motion.'],['Bootstrap 5','Ready-made grid, buttons and components.'],['Accessibility basics','ARIA and colour contrast so everyone can use your site.']],
+  labs:['Responsive portfolio layout','CSS Grid magazine layout','Bootstrap component library','Mobile-first design challenge'],
+  mini:'Personal portfolio website: a fully responsive multi-page site with about, skills, projects and contact sections. Deployed on GitHub Pages with a custom domain.',
+  tools:['HTML5','CSS3','Flexbox','Grid','Bootstrap 5']},
+ {n:2,h:10,c:'--c2',t:'JavaScript: Core to Advanced',layer:'Logic',
+  simple:'Learn the language of the whole stack. Make pages react to clicks and fetch data from the internet.',
+  helps:'React, Express and Mongoose are all JavaScript. Async/await is how the portal talks to the server and the database.',
+  topics:[['ES6+','let/const, arrow functions, destructuring.'],['DOM & events','Change the page when the user clicks or types.'],['Async JS','Promises, async/await and the Fetch API.'],['map, filter, reduce','Work with lists of data in one line.'],['Closures, prototypes & OOP','How JavaScript objects and functions really work.'],['Errors, modules & bundling','Handle mistakes and split code into files.']],
+  labs:['To-do app with localStorage','Weather app (OpenWeather API)','Async fetch & JSON rendering','OOP quiz game'],
+  mini:'Real-time GitHub profile explorer: search any username, fetch repos with the GitHub API, and show stats, languages and top repositories with pagination.',
+  tools:['JavaScript ES6+','Fetch API','DOM','localStorage']},
+ {n:3,h:10,c:'--c3',t:'React.js: Frontend Framework',layer:'R',
+  simple:'Build fast, app-like websites from small reusable pieces called components.',
+  helps:'The whole capstone frontend is React: seeker, recruiter and admin screens, with Redux holding the login and app data.',
+  topics:[['JSX, components, props & state','The building blocks of every React app.'],['Hooks','useState, useEffect, useContext.'],['React Router v6','Move between pages without reloading.'],['Redux Toolkit','One shared store for app-wide data.'],['React Hook Form','Easy forms with validation.'],['Axios & error boundaries','Call APIs and handle failures.'],['Performance','useMemo, useCallback and lazy loading.']],
+  labs:['Counter & form with hooks','Multi-page SPA with React Router','Redux cart state','Movie search (TMDB API)'],
+  mini:'E-commerce product listing SPA: browse products, filter by category and price, add to cart with Redux, and place a mock order. Responsive with Tailwind CSS.',
+  tools:['React.js','Redux Toolkit','React Router v6','Axios','Tailwind CSS','React Hook Form']},
+ {n:4,h:10,c:'--c4',t:'Node.js & Express: Backend',layer:'E + N',
+  simple:'Build the server: the part that receives requests, applies the rules, and sends answers back.',
+  helps:'The capstone API for jobs, applications and users, plus login, roles and resume upload, all come from this module.',
+  topics:[['Node.js runtime','Event loop, modules and npm.'],['Express.js','Routing, middleware and controllers.'],['REST API design','CRUD: create, read, update, delete.'],['JWT & bcrypt','Log users in safely and store passwords hashed.'],['File uploads with Multer','Accept files like images and resumes.'],['Env variables & error middleware','Keep secrets out of code; handle errors in one place.'],['Rate limiting & security headers','Protect the API from abuse.']],
+  labs:['REST API from scratch','JWT signup/login API','File upload API with Multer','Postman API testing'],
+  mini:'Blog REST API: full CRUD for posts, categories and comments with JWT auth, admin/user roles, image upload and Swagger API docs.',
+  tools:['Node.js','Express.js','JWT','bcrypt','Multer','Swagger']},
+ {n:5,h:8,c:'--c5',t:'Databases: MongoDB & SQL',layer:'M',
+  simple:'Learn to store data, link it together, and ask questions of it quickly.',
+  helps:'The portal stores users, jobs and applications in MongoDB. Aggregation powers the admin analytics, and indexes make job search fast.',
+  topics:[['MongoDB','Collections, CRUD and the aggregation pipeline.'],['Mongoose','Schemas, models and validation.'],['Relationships','populate and embedded documents.'],['MySQL basics','Tables, joins and foreign keys.'],['Sequelize ORM','Use SQL databases from Node.'],['Indexing & optimisation','Make queries fast.']],
+  labs:['MongoDB CRUD with Mongoose','Aggregation pipeline exercises','MySQL joins & reporting','Schema design challenge'],
+  mini:'Student result management system: students, subjects and results in MongoDB, aggregation for rank lists, and an Express API used by a React frontend. Your first full MERN app.',
+  tools:['MongoDB','Mongoose','MySQL','Sequelize ORM']},
+ {n:6,h:7,c:'--c6',t:'Authentication, Security & DevOps',layer:'Safety',
+  simple:'Keep users and data safe, work in a team with Git, and ship code automatically.',
+  helps:'Google login, safe headers, Docker setup and the GitHub Actions pipeline in the capstone all come from here.',
+  topics:[['OAuth 2.0 with Passport.js','“Sign in with Google / GitHub”.'],['Sessions vs tokens','Two ways to remember a logged-in user.'],['CORS, helmet, XSS & CSRF','Block common web attacks.'],['Git & GitHub','Branches, pull requests and workflows.'],['Docker basics','Containers, images and Compose.'],['CI/CD with GitHub Actions','Test and deploy on every push.']],
+  labs:['Google OAuth login','Secure headers & CORS config','Git branching & PR workflow','Docker Compose full stack setup'],
+  mini:'Secure auth module: email/password + Google login, email verification, forgot password, and rate-limited login with lockout. Fully tested with Jest.',
+  tools:['OAuth 2.0','Passport.js','helmet','Docker','GitHub Actions','Jest']},
+ {n:7,h:10,c:'--c7',t:'Full Stack Integration & Capstone',layer:'Live',
+  simple:'Join the frontend and backend, add real-time features, and put the whole app on the internet.',
+  helps:'This is where the job portal comes together and goes live with a public URL.',
+  topics:[['Connect React to Express','Frontend and backend working as one app.'],['Real-time with Socket.io','Instant notifications and chat.'],['Cloud deployment','Vercel for the frontend, Render for the backend.'],['MongoDB Atlas','A database in the cloud.'],['Production config','Environment settings for the live app.'],['Performance','Code splitting, caching and CDN.']],
+  labs:['Connect React app to Node API','Real-time chat with Socket.io','Deploy a MERN app end-to-end','Performance audit & Lighthouse score'],
+  mini:'Capstone: Job Portal Web App. Seekers apply with resumes, recruiters post jobs and manage applications, admins see analytics. JWT + Google login, real-time notifications, deployed on Vercel + Render + MongoDB Atlas + SandBox Pro.',
+  tools:['Socket.io','Vercel','Render','MongoDB Atlas','Lighthouse','CDN'],end:true}
+];
+const tower=$('tower'),md=$('mdetail');
+M.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.className='brick';b.role='tab';b.id='brick-'+m.n;
+  b.style.cssText=`--c:var(${m.c});--hrs:${m.h};--i:${i}`;
+  b.innerHTML=`<span><span class="bm">MODULE ${m.n} · ${esc(m.layer)}</span><span class="bt">${esc(m.t)}</span></span><span class="bh">${m.h}h</span>`;
+  b.addEventListener('click',()=>msel(i,true));
+  b.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const j=Math.max(0,Math.min(6,i+(e.key==='ArrowUp'?1:-1)));msel(j,true);tower.children[j].focus();}});
+  tower.appendChild(b);});
+function msel(i,user){const m=M[i];
+  [...tower.children].forEach((b,j)=>{b.setAttribute('aria-selected',j===i);b.tabIndex=j===i?0:-1;});
+  md.setAttribute('aria-labelledby','brick-'+m.n);
+  md.innerHTML=`<div class="mdetail" style="--c:var(${m.c})">
+   <div class="eyebrow">Module ${m.n} · ${m.h} hours</div>
+   <h3 style="font-size:28px;margin-top:-8px">${esc(m.t)}</h3>
+   <p class="simple">${esc(m.simple)}</p>
+   <div><h4>What you learn</h4><ul class="topics">${m.topics.map(t=>`<li><b>${esc(t[0])}</b><span>${esc(t[1])}</span></li>`).join('')}</ul></div>
+   <div><h4>Hands-on labs</h4><div class="labs">${m.labs.map(l=>`<span>${esc(l)}</span>`).join('')}</div></div>
+   <div class="mini"><span class="tag">${m.end?'Capstone':'Mini project'}</span><p>${esc(m.mini)}</p></div>
+   <p class="helps"><b>How it helps the capstone:</b> ${esc(m.helps)}</p>
+   <div><h4>Tools</h4><div class="chips">${m.tools.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div></div>
+  </div>`;
+  try{if(user)localStorage.setItem('mern-mod',i)}catch(e){}}
+let sm=0;try{const v=+localStorage.getItem('mern-mod');if(v>=0&&v<7)sm=v}catch(e){}
+msel(sm,false);
+
+/* ---------- roles ---------- */
+const R=[
+ {k:'Job Seeker',c:'--c3',url:'jobportal.vercel.app/jobs',acts:[['Register or sign in with Google','M4 · M6'],['Search and filter jobs','M3 · M5'],['Upload a resume','M4'],['Apply to jobs','M3 · M4'],['Get live status updates','M7']],
+  screen:'seeker'},
+ {k:'Recruiter',c:'--c1',url:'jobportal.vercel.app/recruiter',acts:[['Post a new job','M3 · M4'],['See who applied','M5'],['Open and review resumes','M4'],['Shortlist or reject','M3 · M4'],['Get notified of new applicants instantly','M7']],
+  screen:'recruiter'},
+ {k:'Admin',c:'--c6',url:'jobportal.vercel.app/admin',acts:[['See analytics dashboard','M5 aggregation'],['Manage all users','M4 roles'],['Moderate job posts','M4'],['Watch activity in real time','M7']],
+  screen:'admin'}
+];
+const rt=$('rtabs');let ri=0;
+rt.innerHTML=R.map((r,i)=>`<button type="button" role="tab" id="rt${i}" style="--rc:var(${r.c})">${r.k}</button>`).join('');
+rt.querySelectorAll('button').forEach((b,i)=>b.addEventListener('click',()=>rsel(i)));
+function sk(w){return `<div class="sk ${w}"></div>`}
+function rsel(i){ri=i;const r=R[i];
+  rt.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+  $('rcard').innerHTML=`<div class="rcard" role="tabpanel" aria-labelledby="rt${i}" style="--rc:var(${r.c})"><h3>What a ${r.k.toLowerCase()} can do</h3><ul>${r.acts.map(a=>`<li><span>${esc(a[0])}</span><span class="chip">${esc(a[1])}</span></li>`).join('')}</ul></div>`;
+  $('surl').textContent=r.url;const sb=$('sbody');sb.style.setProperty('--rc','var('+r.c+')');
+  if(r.screen==='seeker')sb.innerHTML=`${sk('w40')}<div class="sk" style="height:34px;border-radius:8px"></div>${[0,1,2].map(n=>`<div class="srow" style="--i:${n}"><span class="av"></span><span class="tx">${sk('w60')}${sk('w40')}</span><span class="pill">${n===0?'Applied ✓':'Apply'}</span></div>`).join('')}`;
+  else if(r.screen==='recruiter')sb.innerHTML=`<div class="toast"><svg class="bell" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span><b>New application</b> for Frontend Intern, sent live by Socket.io</span></div>${[0,1,2].map(n=>`<div class="srow" style="--i:${n}"><span class="av"></span><span class="tx">${sk('w60')}${sk('w40')}</span><span class="pill">${['New','Shortlisted','Review'][n]}</span></div>`).join('')}`;
+  else sb.innerHTML=`${sk('w40')}<div class="bars">${[45,70,52,88,64,96,78].map((h,n)=>`<i style="height:${h}%;--i:${n}"></i>`).join('')}</div>${sk('w80')}${sk('w60')}`;
+}
+rsel(0);
+
+/* ---------- tracks ---------- */
+const ic={
+ server:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>',
+ screen:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+ db:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+ cloud:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19.5 10 4 4 0 0 1 18 18z"/></svg>'};
+const T=[
+ {t:'Backend (Node.js + Express)',c:'--le',i:'server',items:[['Express REST API for jobs, applications, users','M4'],['JWT login + Google OAuth (Passport.js)','M4 · M6'],['Resume upload with Multer to cloud storage','M4'],['Roles: Job Seeker / Recruiter / Admin','M4'],['Rate limiting, helmet, CORS headers','M4 · M6'],['Swagger API documentation','M4']]},
+ {t:'Frontend (React.js)',c:'--lr',i:'screen',items:[['Seeker: register, search, upload resume, apply','M3'],['Recruiter: post jobs, manage applications','M3'],['Admin dashboard with analytics & user management','M3 · M5'],['JWT login + Google OAuth flow','M3 · M6'],['Redux Toolkit for global state','M3'],['Tailwind CSS responsive design','M1 · M3']]},
+ {t:'Real-time & Database',c:'--lm',i:'db',items:[['Real-time notifications with Socket.io','M7'],['MongoDB + Mongoose: users, jobs, applications','M5'],['MongoDB Atlas cloud database','M7'],['Aggregation pipeline for analytics','M5'],['Indexes for fast job search','M5']]},
+ {t:'DevOps & Deployment',c:'--c6',i:'cloud',items:[['Frontend on Vercel, backend on Render','M7'],['SandBox Pro (MATCH Feature) deployment','M7'],['Docker + Docker Compose local setup','M6'],['GitHub Actions CI/CD pipeline','M6'],['Lighthouse performance audit (target ≥ 90)','M7'],['GitHub repo + README + live demo URL','M6']]}
+];
+$('tracks').innerHTML=T.map(t=>`<div class="track reveal" style="--c:var(${t.c})"><div class="th"><span class="ic">${ic[t.i]}</span><h3>${esc(t.t)}</h3></div><ul>${t.items.map(x=>`<li><span>${esc(x[0])}</span><span class="chip">${esc(x[1])}</span></li>`).join('')}</ul></div>`).join('');
+
+/* ---------- timeline ---------- */
+const TL=[['Plan','Users, roles and data models on paper'],['Database','Mongoose schemas for users, jobs, applications'],['API','Express routes, JWT, roles, uploads'],['Screens','React pages for all three roles'],['Connect','Axios calls, Redux, Socket.io alerts'],['Ship','Secure, test, deploy, Lighthouse, README']];
+$('timeline').innerHTML=TL.map((x,i)=>`<div class="tl reveal"><span class="dot">${i+1}</span><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+
+/* ---------- submission ---------- */
+const S=[['Full GitHub repo','Clean code for frontend and backend.'],['README','What it does, how to run it, screenshots.'],['Live demo URL','Working app on Vercel + Render + Atlas.'],['Lighthouse ≥ 90','Performance audit report.'],['All 6 mini projects on GitHub','Each with its own README.']];
+let done={};try{done=JSON.parse(localStorage.getItem('mern-done')||'{}')}catch(e){}
+$('submit').innerHTML=S.map((s,i)=>`<label for="s${i}"><input type="checkbox" id="s${i}" ${done[i]?'checked':''}><span><span class="dt">${esc(s[0])}</span><span class="dd">${esc(s[1])}</span></span></label>`).join('');
+function prog(){const n=S.filter((_,i)=>$('s'+i).checked).length;$('pbar').style.width=n/S.length*100+'%';$('ptext').textContent=`${n} of ${S.length} ready`;}
+S.forEach((_,i)=>$('s'+i).addEventListener('change',e=>{done[i]=e.target.checked;try{localStorage.setItem('mern-done',JSON.stringify(done))}catch(err){}prog();}));
+prog();
+})();
+</script>
+
+</body>
+</html>
